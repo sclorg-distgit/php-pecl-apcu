@@ -1,3 +1,5 @@
+# centos/sclo spec file for php-pecl-apcu, from:
+#
 # remirepo spec file for php-pecl-apcu
 # with SCL compatibility, from:
 #
@@ -11,9 +13,9 @@
 #
 %if 0%{?scl:1}
 %if "%{scl}" == "rh-php56"
-%global sub_prefix more-php56-
+%global sub_prefix sclo-php56-
 %else
-%global sub_prefix %{scl_prefix}
+%global sub_prefix sclo-%{scl_prefix}
 %endif
 %endif
 
@@ -23,13 +25,7 @@
 %{!?php_incldir: %global php_incldir %{_includedir}/php}
 %{!?__pecl:      %global __pecl      %{_bindir}/pecl}
 %{!?__php:       %global __php       %{_bindir}/php}
-%global gh_commit  d7b65bf289e7dd3cd22350554b5eb99fc3bb2a9c
-%global gh_short   %(c=%{gh_commit}; echo ${c:0:7})
-%global gh_owner   krakjoe
-%global gh_project apcu
-#global gh_date    20151120
 %global pecl_name  apcu
-%global with_zts   0%{?__ztsphp:1}
 %if "%{php_version}" < "5.6"
 %global ini_name   %{pecl_name}.ini
 %else
@@ -39,63 +35,34 @@
 Name:           %{?sub_prefix}php-pecl-apcu
 Summary:        APC User Cache
 Version:        4.0.10
-%if 0%{?gh_date:1}
-Release:        0.1.%{gh_date}git%{gh_short}%{?dist}%{!?scl:%{!?nophptag:%(%{__php} -r 'echo ".".PHP_MAJOR_VERSION.".".PHP_MINOR_VERSION;')}}
-Source0:        https://github.com/%{gh_owner}/%{gh_project}/archive/%{gh_commit}/%{pecl_name}-%{version}-%{gh_short}.tar.gz
-%else
-Release:        1%{?dist}%{!?scl:%{!?nophptag:%(%{__php} -r 'echo ".".PHP_MAJOR_VERSION.".".PHP_MINOR_VERSION;')}}
+Release:        1%{?dist}
 Source0:        http://pecl.php.net/get/%{pecl_name}-%{version}.tgz
-%endif
 Source1:        %{pecl_name}.ini
-Source2:        %{pecl_name}-panel.conf
-Source3:        %{pecl_name}.conf.php
 
 License:        PHP
 Group:          Development/Languages
 URL:            http://pecl.php.net/package/APCu
 
-BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:  %{?scl_prefix}php-devel
 BuildRequires:  %{?scl_prefix}php-pear
 BuildRequires:  pcre-devel
 
 Requires:       %{?scl_prefix}php(zend-abi) = %{php_zend_api}
 Requires:       %{?scl_prefix}php(api) = %{php_core_api}
-%{?_sclreq:Requires: %{?scl_prefix}runtime%{?_sclreq}%{?_isa}}
 
-Obsoletes:      %{?scl_prefix}php-apcu < 4.0.0-1
 Provides:       %{?scl_prefix}php-apcu = %{version}
 Provides:       %{?scl_prefix}php-apcu%{?_isa} = %{version}
+Provides:       %{?scl_prefix}php-pecl-apcu = %{version}-%{release}
+Provides:       %{?scl_prefix}php-pecl-apcu%{?_isa} = %{version}-%{release}
 Provides:       %{?scl_prefix}php-pecl(apcu) = %{version}
 Provides:       %{?scl_prefix}php-pecl(apcu)%{?_isa} = %{version}
-%if "%{php_version}" < "5.5"
-Conflicts:      %{?scl_prefix}php-pecl-apc < 4
-%else
-Obsoletes:      %{?scl_prefix}php-pecl-apc < 4
-%endif
 # Same provides than APC, this is a drop in replacement
 Provides:       %{?scl_prefix}php-apc = %{version}
 Provides:       %{?scl_prefix}php-apc%{?_isa} = %{version}
-Provides:       %{?scl_prefix}php-pecl-apc = %{version}
-Provides:       %{?scl_prefix}php-pecl-apc%{?_isa} = %{version}
+Provides:       %{?scl_prefix}php-pecl-apc = %{version}-%{release}
+Provides:       %{?scl_prefix}php-pecl-apc%{?_isa} = %{version}-%{release}
 Provides:       %{?scl_prefix}php-pecl(APC) = %{version}
 Provides:       %{?scl_prefix}php-pecl(APC)%{?_isa} = %{version}
-
-%if "%{?vendor}" == "Remi Collet" && 0%{!?scl:1}
-# Other third party repo stuff
-Obsoletes:     php53-pecl-%{pecl_name}  <= %{version}
-Obsoletes:     php53u-pecl-%{pecl_name} <= %{version}
-Obsoletes:     php54-pecl-%{pecl_name}  <= %{version}
-Obsoletes:     php54w-pecl-%{pecl_name} <= %{version}
-%if "%{php_version}" > "5.5"
-Obsoletes:     php55u-pecl-%{pecl_name} <= %{version}
-Obsoletes:     php55w-pecl-%{pecl_name} <= %{version}
-%endif
-%if "%{php_version}" > "5.6"
-Obsoletes:     php56u-pecl-%{pecl_name} <= %{version}
-Obsoletes:     php56w-pecl-%{pecl_name} <= %{version}
-%endif
-%endif
 
 %if 0%{?fedora} < 20 && 0%{?rhel} < 7
 # Filter shared private
@@ -132,11 +99,8 @@ Summary:       APCu developer files (header)
 Group:         Development/Libraries
 Requires:      %{name}%{?_isa} = %{version}-%{release}
 Requires:      %{?scl_prefix}php-devel%{?_isa}
-%if "%{php_version}" < "5.5"
-Conflicts:     %{?scl_prefix}php-pecl-apc-devel < 4
-%else
-Obsoletes:     %{?scl_prefix}php-pecl-apc-devel < 4
-%endif
+Provides:      %{?scl_prefix}php-pecl-apcu-devel = %{version}-%{release}
+Provides:      %{?scl_prefix}php-pecl-apcu-devel%{?_isa} = %{version}-%{release}
 Provides:      %{?scl_prefix}php-pecl-apc-devel = %{version}-%{release}
 Provides:      %{?scl_prefix}php-pecl-apc-devel%{?_isa} = %{version}-%{release}
 
@@ -144,38 +108,9 @@ Provides:      %{?scl_prefix}php-pecl-apc-devel%{?_isa} = %{version}-%{release}
 These are the files needed to compile programs using APCu.
 
 
-%if 0%{!?scl:1}
-%package -n apcu-panel
-Summary:       APCu control panel
-Group:         Applications/Internet
-%if 0%{?fedora} >= 12 || 0%{?rhel} >= 6
-BuildArch:     noarch
-%endif
-Requires:      %{name} = %{version}-%{release}
-Requires:      mod_php
-Requires:      php-gd
-Requires:      httpd
-%if "%{php_version}" < "5.5"
-Conflicts:     apc-panel < 4
-%else
-Obsoletes:     apc-panel < 4
-%endif
-Provides:      apc-panel = %{version}-%{release}
-
-%description -n apcu-panel
-This package provides the APCu control panel, with Apache
-configuration, available on http://localhost/apcu-panel/
-%endif
-
-
 %prep
 %setup -qc
-%if 0%{?gh_date:1}
-mv %{gh_project}-%{gh_commit} NTS
-mv NTS/package.xml .
-%else
 mv %{pecl_name}-%{version} NTS
-%endif
 
 cd NTS
 
@@ -187,15 +122,6 @@ if test "x${extver}" != "x%{version}"; then
 fi
 cd ..
 
-%if %{with_zts}
-# duplicate for ZTS build
-cp -pr NTS ZTS
-%endif
-
-# Fix path to configuration file
-sed -e s:apc.conf.php:%{_sysconfdir}/apcu-panel/conf.php:g \
-    -i  NTS/apc.php
-
 
 %build
 cd NTS
@@ -203,50 +129,21 @@ cd NTS
 %configure --with-php-config=%{_bindir}/php-config
 make %{?_smp_mflags}
 
-%if %{with_zts}
-cd ../ZTS
-%{_bindir}/zts-phpize
-%configure --with-php-config=%{_bindir}/zts-php-config
-make %{?_smp_mflags}
-%endif
-
 
 %install
-rm -rf %{buildroot}
-
 # Install the NTS stuff
 make -C NTS install INSTALL_ROOT=%{buildroot}
 install -D -m 644 %{SOURCE1} %{buildroot}%{php_inidir}/%{ini_name}
 
-%if %{with_zts}
-# Install the ZTS stuff
-make -C ZTS install INSTALL_ROOT=%{buildroot}
-install -D -m 644 %{SOURCE1} %{buildroot}%{php_ztsinidir}/%{ini_name}
-%endif
-
 # Install the package XML file
 install -D -m 644 package.xml %{buildroot}%{pecl_xmldir}/%{name}.xml
-
-%if 0%{!?scl:1}
-# Install the Control Panel
-# Pages
-install -D -m 644 -p NTS/apc.php  \
-        %{buildroot}%{_datadir}/apcu-panel/index.php
-# Apache config
-install -D -m 644 -p %{SOURCE2} \
-        %{buildroot}%{_sysconfdir}/httpd/conf.d/apcu-panel.conf
-# Panel config
-install -D -m 644 -p %{SOURCE3} \
-        %{buildroot}%{_sysconfdir}/apcu-panel/conf.php
-%endif
-
 
 # Test & Documentation
 cd NTS
 for i in $(grep 'role="test"' ../package.xml | sed -e 's/^.*name="//;s/".*$//')
 do install -Dpm 644 $i %{buildroot}%{pecl_testdir}/%{pecl_name}/$i
 done
-for i in $(grep 'role="doc"' ../package.xml | sed -e 's/^.*name="//;s/".*$//')
+for i in apc.php $(grep 'role="doc"' ../package.xml | sed -e 's/^.*name="//;s/".*$//')
 do install -Dpm 644 $i %{buildroot}%{pecl_docdir}/%{pecl_name}/$i
 done
 
@@ -264,24 +161,6 @@ TEST_PHP_ARGS="-n -d extension_dir=$PWD/modules -d extension=%{pecl_name}.so" \
 NO_INTERACTION=1 \
 REPORT_EXIT_STATUS=1 \
 %{_bindir}/php -n run-tests.php --show-diff
-
-%if %{with_zts}
-cd ../ZTS
-
-%{__ztsphp} -n -d extension=%{buildroot}%{php_ztsextdir}/%{pecl_name}.so -m | grep 'apcu'
-%{__ztsphp} -n -d extension=%{buildroot}%{php_ztsextdir}/%{pecl_name}.so -m | grep 'apc$'
-
-# Upstream test suite for ZTS extension
-TEST_PHP_EXECUTABLE=%{__ztsphp} \
-TEST_PHP_ARGS="-n -d extension_dir=$PWD/modules -d extension=%{pecl_name}.so" \
-NO_INTERACTION=1 \
-REPORT_EXIT_STATUS=1 \
-%{__ztsphp} -n run-tests.php --show-diff
-%endif
-
-
-%clean
-rm -rf %{buildroot}
 
 
 # when pear installed alone, after us
@@ -303,42 +182,22 @@ fi
 
 
 %files
-%defattr(-,root,root,-)
-%{?_licensedir:%license NTS/LICENSE}
 %doc %{pecl_docdir}/%{pecl_name}
 %{pecl_xmldir}/%{name}.xml
 
 %config(noreplace) %{php_inidir}/%{ini_name}
 %{php_extdir}/%{pecl_name}.so
 
-%if %{with_zts}
-%{php_ztsextdir}/%{pecl_name}.so
-%config(noreplace) %{php_ztsinidir}/%{ini_name}
-%endif
-
 
 %files devel
-%defattr(-,root,root,-)
 %doc %{pecl_testdir}/%{pecl_name}
 %{php_incldir}/ext/%{pecl_name}
 
-%if %{with_zts}
-%{php_ztsincldir}/ext/%{pecl_name}
-%endif
-
-
-%if 0%{!?scl:1}
-%files -n apcu-panel
-%defattr(-,root,root,-)
-# Need to restrict access, as it contains a clear password
-%attr(550,apache,root) %dir %{_sysconfdir}/apcu-panel
-%config(noreplace) %{_sysconfdir}/apcu-panel/conf.php
-%config(noreplace) %{_sysconfdir}/httpd/conf.d/apcu-panel.conf
-%{_datadir}/apcu-panel
-%endif
-
 
 %changelog
+* Mon Jan 18 2016 Remi Collet <remi@fedoraproject.org> - 4.0.10-1
+- cleanup for SCLo build
+
 * Mon Dec  7 2015 Remi Collet <remi@fedoraproject.org> - 4.0.10-1
 - Update to 4.0.10 (stable)
 
