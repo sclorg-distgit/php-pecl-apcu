@@ -12,29 +12,22 @@
 # Please, preserve the changelog entries
 #
 %if 0%{?scl:1}
-%if "%{scl}" == "rh-php56"
-%global sub_prefix sclo-php56-
+%if "%{scl}" == "rh-php70"
+%global sub_prefix sclo-php70-
 %else
 %global sub_prefix sclo-%{scl_prefix}
 %endif
+%scl_package        php-pecl-apcu
+%else
+%global pkg_name    %{name}
 %endif
 
-%{?scl:          %scl_package        php-pecl-apcu}
-%{!?scl:         %global pkg_name    %{name}}
-%{!?php_inidir:  %global php_inidir  %{_sysconfdir}/php.d}
-%{!?php_incldir: %global php_incldir %{_includedir}/php}
-%{!?__pecl:      %global __pecl      %{_bindir}/pecl}
-%{!?__php:       %global __php       %{_bindir}/php}
 %global pecl_name  apcu
-%if "%{php_version}" < "5.6"
-%global ini_name   %{pecl_name}.ini
-%else
 %global ini_name   40-%{pecl_name}.ini
-%endif
 
 Name:           %{?sub_prefix}php-pecl-apcu
 Summary:        APC User Cache
-Version:        4.0.10
+Version:        5.1.7
 Release:        1%{?dist}
 Source0:        http://pecl.php.net/get/%{pecl_name}-%{version}.tgz
 Source1:        %{pecl_name}.ini
@@ -43,7 +36,7 @@ License:        PHP
 Group:          Development/Languages
 URL:            http://pecl.php.net/package/APCu
 
-BuildRequires:  %{?scl_prefix}php-devel
+BuildRequires:  %{?scl_prefix}php-devel > 7
 BuildRequires:  %{?scl_prefix}php-pear
 BuildRequires:  pcre-devel
 
@@ -56,13 +49,6 @@ Provides:       %{?scl_prefix}php-pecl-apcu = %{version}-%{release}
 Provides:       %{?scl_prefix}php-pecl-apcu%{?_isa} = %{version}-%{release}
 Provides:       %{?scl_prefix}php-pecl(apcu) = %{version}
 Provides:       %{?scl_prefix}php-pecl(apcu)%{?_isa} = %{version}
-# Same provides than APC, this is a drop in replacement
-Provides:       %{?scl_prefix}php-apc = %{version}
-Provides:       %{?scl_prefix}php-apc%{?_isa} = %{version}
-Provides:       %{?scl_prefix}php-pecl-apc = %{version}-%{release}
-Provides:       %{?scl_prefix}php-pecl-apc%{?_isa} = %{version}-%{release}
-Provides:       %{?scl_prefix}php-pecl(APC) = %{version}
-Provides:       %{?scl_prefix}php-pecl(APC)%{?_isa} = %{version}
 
 %if 0%{?fedora} < 20 && 0%{?rhel} < 7
 # Filter shared private
@@ -72,24 +58,9 @@ Provides:       %{?scl_prefix}php-pecl(APC)%{?_isa} = %{version}
 
 
 %description
-APCu is userland caching: APC stripped of opcode caching in preparation
-for the deployment of Zend OPcache as the primary solution to opcode
-caching in future versions of PHP.
+APCu is userland caching: APC stripped of opcode caching.
 
-APCu has a revised and simplified codebase, by the time the PECL release
-is available, every part of APCu being used will have received review and
-where necessary or appropriate, changes.
-
-Simplifying and documenting the API of APCu completely removes the barrier
-to maintenance and development of APCu in the future, and additionally allows
-us to make optimizations not possible previously because of APC's inherent
-complexity.
-
-APCu only supports userland caching (and dumping) of variables, providing an
-upgrade path for the future. When O+ takes over, many will be tempted to use
-3rd party solutions to userland caching, possibly even distributed solutions;
-this would be a grave error. The tried and tested APC codebase provides far
-superior support for local storage of PHP variables.
+APCu only supports userland caching of variables.
 
 Package built for PHP %(%{__php} -r 'echo PHP_MAJOR_VERSION.".".PHP_MINOR_VERSION;')%{?scl: as Software Collection (%{scl} by %{?scl_vendor}%{!?scl_vendor:rh})}.
 
@@ -101,8 +72,6 @@ Requires:      %{name}%{?_isa} = %{version}-%{release}
 Requires:      %{?scl_prefix}php-devel%{?_isa}
 Provides:      %{?scl_prefix}php-pecl-apcu-devel = %{version}-%{release}
 Provides:      %{?scl_prefix}php-pecl-apcu-devel%{?_isa} = %{version}-%{release}
-Provides:      %{?scl_prefix}php-pecl-apc-devel = %{version}-%{release}
-Provides:      %{?scl_prefix}php-pecl-apc-devel%{?_isa} = %{version}-%{release}
 
 %description devel
 These are the files needed to compile programs using APCu.
@@ -151,9 +120,7 @@ done
 %check
 cd NTS
 
-# Check than both extensions are reported (BC mode)
 %{_bindir}/php -n -d extension=%{buildroot}%{php_extdir}/%{pecl_name}.so -m | grep 'apcu'
-%{_bindir}/php -n -d extension=%{buildroot}%{php_extdir}/%{pecl_name}.so -m | grep 'apc$'
 
 # Upstream test suite for NTS extension
 TEST_PHP_EXECUTABLE=%{_bindir}/php \
@@ -195,6 +162,9 @@ fi
 
 
 %changelog
+* Thu Nov  3 2016 Remi Collet <remi@fedoraproject.org> - 5.1.7-1
+- update to 5.1.7 for PHP 7
+
 * Mon Jan 18 2016 Remi Collet <remi@fedoraproject.org> - 4.0.10-1
 - cleanup for SCLo build
 
