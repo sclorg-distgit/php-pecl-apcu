@@ -25,7 +25,7 @@
 Name:           %{?scl_prefix}php-pecl-apcu
 Summary:        APC User Cache
 Version:        5.1.12
-Release:        1%{?dist}
+Release:        1.bs1%{?dist}
 Source0:        http://pecl.php.net/get/%{pecl_name}-%{version}.tgz
 Source1:        %{pecl_name}.ini
 
